@@ -64,7 +64,7 @@
 #  if defined (__i386__)
 #    define VB_BSWAP_16_IA32(val)				\
      (__extension__						\
-      ({ register unsigned short int __v, __x = ((unsigned short) (val));	\
+      ({ unsigned short int __v, __x = ((unsigned short) (val));	\
 	 if (__builtin_constant_p (__x))			\
 	   __v = VB_BSWAP_16_CONSTANT (__x);			\
 	 else							\
@@ -75,7 +75,7 @@
 	 __v; }))
 #    define VB_BSWAP_32_IA32(val)				\
        (__extension__						\
-	({ register unsigned int __v, __x = ((unsigned int) (val));	\
+	({ unsigned int __v, __x = ((unsigned int) (val));	\
 	   if (__builtin_constant_p (__x))			\
 	     __v = VB_BSWAP_32_CONSTANT (__x);			\
 	   else							\
@@ -102,7 +102,7 @@
 #  elif defined (__ia64__)
 #    define VB_BSWAP_16_IA64(val)				\
        (__extension__						\
-	({ register unsigned short __v, __x = ((unsigned short) (val));	\
+	({ unsigned short __v, __x = ((unsigned short) (val));	\
 	   if (__builtin_constant_p (__x))			\
 	     __v = VB_BSWAP_16_CONSTANT (__x);			\
 	   else							\
@@ -113,7 +113,7 @@
 	    __v; }))
 #    define VB_BSWAP_32_IA64(val)				\
        (__extension__						\
-	 ({ register unsigned int __v, __x = ((unsigned int) (val));	\
+	 ({ unsigned int __v, __x = ((unsigned int) (val));	\
 	    if (__builtin_constant_p (__x))			\
 	      __v = VB_BSWAP_32_CONSTANT (__x);			\
 	    else						\
@@ -124,7 +124,7 @@
 	    __v; }))
 #    define VB_BSWAP_64_IA64(val)				\
        (__extension__						\
-	({ register unsigned long long __v,			\
+	({ unsigned long long __v,			\
 	     __x = ((unsigned long long) (val));		\
 	   if (__builtin_constant_p (__x))			\
 	     __v = VB_BSWAP_64_CONSTANT (__x);			\
@@ -139,7 +139,7 @@
 #  elif defined (__x86_64__)
 #    define VB_BSWAP_16_X86_64(val)				\
      (__extension__						\
-      ({ register unsigned short int __v, __x = ((unsigned short) (val));	\
+      ({ unsigned short int __v, __x = ((unsigned short) (val));	\
 	 if (__builtin_constant_p (__x))			\
 	   __v = VB_BSWAP_16_CONSTANT (__x);			\
 	 else							\
@@ -150,7 +150,7 @@
 	 __v; }))
 #    define VB_BSWAP_32_X86_64(val)				\
        (__extension__						\
-	 ({ register unsigned int __v, __x = ((unsigned int) (val));	\
+	 ({ unsigned int __v, __x = ((unsigned int) (val));	\
 	    if (__builtin_constant_p (__x))			\
 	      __v = VB_BSWAP_32_CONSTANT (__x);			\
 	    else						\
@@ -160,7 +160,7 @@
 	    __v; }))
 #    define VB_BSWAP_64_X86_64(val)				\
        (__extension__						\
-	({ register unsigned long long __v, __x = ((unsigned long long) (val));	\
+	({ unsigned long long __v, __x = ((unsigned long long) (val));	\
 	   if (__builtin_constant_p (__x))			\
 	     __v = VB_BSWAP_64_CONSTANT (__x);			\
 	   else							\

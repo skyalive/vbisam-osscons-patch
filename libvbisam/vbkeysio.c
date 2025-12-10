@@ -682,7 +682,7 @@ vvbkeyvalueset (const int ihigh, struct keydesc *pskeydesc, unsigned char *pckey
 		case LONGTYPE:
 			iremainder = pskptr->kp_leng;
 			while (iremainder > 0) {
-				inl_stlong (ihigh ? LONG_MAX : LONG_MIN, pckeyvalue);
+				inl_stlong (ihigh ? INT_MAX : INT_MIN, pckeyvalue);
 				pckeyvalue += LONGSIZE;
 				iremainder -= LONGSIZE;
 			}

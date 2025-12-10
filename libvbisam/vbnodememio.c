@@ -494,11 +494,11 @@ ivbnodesave (const int ihandle, const int ikeynumber, struct VBTREE *pstree,
 #else
 			ikeylen += 1 - icountlc;
 #endif
-			if (pskey->iishigh && pskeydesc->k_flags && LCOMPRESS) {
+			if (pskey->iishigh && (pskeydesc->k_flags & LCOMPRESS)) {
 				icountlc = pskeydesc->k_len;
 				icounttc = 0;
 #if	ISAMMODE == 1
-				if (pskeydesc->k_flags && TCOMPRESS) {
+				if ((pskeydesc->k_flags & TCOMPRESS)) {
 					ikeylen = INTSIZE * 2;
 				} else {
 					ikeylen = INTSIZE;

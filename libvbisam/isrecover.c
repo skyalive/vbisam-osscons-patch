@@ -319,7 +319,6 @@ ircvcommit (char *pcbuffer)
 static int
 ircvdelete (char *pcbuffer)
 {
-	char	*pcrow;
 	off_t	trownumber;
 	int	ihandle, ipid;
 
@@ -333,7 +332,6 @@ ircvdelete (char *pcbuffer)
 		return ENOTOPEN;
 	}
 	trownumber = inl_ldquad (pcbuffer + INTSIZE);
-	pcrow = pcbuffer + INTSIZE + QUADSIZE + INTSIZE;
 	isdelrec (ihandle, trownumber);
 	return iserrno;
 }
@@ -396,10 +394,9 @@ static int
 ircvfileclose (char *pcbuffer)
 {
 	struct RCV_HDL	*psrcv;
-	int		ihandle, ivarlenflag, ipid;
+	int		ihandle, ipid;
 
 	ihandle = inl_ldint (pcbuffer);
-	ivarlenflag = inl_ldint (pcbuffer + INTSIZE);
 	ipid = inl_ldint (psvblogheader->cpid);
 	if (iignore (ipid)) {
 		return 0;
@@ -584,7 +581,7 @@ int
 isrecover ()
 {
 	char	*pcbuffer;
-	off_t	tlength, tlength2, toffset;
+	off_t	tlength, tlength2;
 	int	iloop, isaveerror;
 
 	/* Initialize by stating that *ALL* tables must be closed! */
@@ -612,7 +609,6 @@ isrecover ()
 	if (tvbread (ivblogfilehandle, cvbrtransbuffer, INTSIZE) != INTSIZE) {
 		return 0;	/* Nothing to do if the file is empty */
 	}
-	toffset = 0;
 	tlength = inl_ldint (cvbrtransbuffer);
 	/* Now, recurse forwards */
 	while (1) {
@@ -659,7 +655,6 @@ isrecover ()
 		if (iserrno) {
 			break;
 		}
-		toffset += tlength2;
 		if (tlength2 == tlength - INTSIZE) {
 			break;
 		}

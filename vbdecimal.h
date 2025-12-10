@@ -55,7 +55,7 @@ typedef struct decimal dec_t;
 **     an int of 4 bytes produces 0x80000000
 */
 
-#define VAL_DECPOSNULL(type)	(1L << ((sizeof (type) * 8) - 1))
+#define VAL_DECPOSNULL(type)	((type)(1ULL << ((sizeof (type) * 8) - 1)))
 
 /* FUNCTION DECLARATIONS */
 extern int	deccvasc (char *cp, int ln, dec_t *rp);
