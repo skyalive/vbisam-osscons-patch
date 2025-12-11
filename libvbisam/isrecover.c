@@ -531,7 +531,7 @@ ircvsetunique (char *pcbuffer)
 static int
 ircvuniqueid (char *pcbuffer)
 {
-	off_t	tuniqueid;
+	vbisam_off_t	tuniqueid;
 	int	ihandle, ipid;
 
 	ihandle = inl_ldint (pcbuffer);

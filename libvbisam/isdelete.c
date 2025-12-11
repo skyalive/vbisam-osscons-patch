@@ -28,7 +28,6 @@ irowdelete (const int ihandle, off_t trownumber)
 {
 	struct DICTINFO	*psvbptr;
 	int		ikeynumber, iresult;
-	off_t		tdupnumber[MAXSUBS];
 
 	psvbptr = psvbfile[ihandle];
 	/*
@@ -43,7 +42,6 @@ irowdelete (const int ihandle, off_t trownumber)
 			iserrno = EBADFILE;
 			return -1;
 		}
-		tdupnumber[ikeynumber] = psvbptr->pskeycurr[ikeynumber]->tdupnumber;
 	}
 
 	/*
