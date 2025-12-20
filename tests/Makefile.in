@@ -89,7 +89,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 noinst_PROGRAMS = mvtest$(EXEEXT) detest00$(EXEEXT) detest01$(EXEEXT) \
-	jvntest$(EXEEXT)
+	jvntest$(EXEEXT) nametest$(EXEEXT) faulttest$(EXEEXT)
 subdir = tests
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
@@ -114,9 +114,15 @@ am__v_lt_1 =
 am_detest01_OBJECTS = detest01.$(OBJEXT)
 detest01_OBJECTS = $(am_detest01_OBJECTS)
 detest01_LDADD = $(LDADD)
+am_faulttest_OBJECTS = faulttest.$(OBJEXT)
+faulttest_OBJECTS = $(am_faulttest_OBJECTS)
+faulttest_LDADD = $(LDADD)
 am_jvntest_OBJECTS = jvntest.$(OBJEXT)
 jvntest_OBJECTS = $(am_jvntest_OBJECTS)
 jvntest_LDADD = $(LDADD)
+am_nametest_OBJECTS = nametest.$(OBJEXT)
+nametest_OBJECTS = $(am_nametest_OBJECTS)
+nametest_LDADD = $(LDADD)
 am_mvtest_OBJECTS = mvtest.$(OBJEXT)
 mvtest_OBJECTS = $(am_mvtest_OBJECTS)
 mvtest_LDADD = $(LDADD)
@@ -136,7 +142,8 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/detest00.Po ./$(DEPDIR)/detest01.Po \
-	./$(DEPDIR)/jvntest.Po ./$(DEPDIR)/mvtest.Po
+	./$(DEPDIR)/faulttest.Po ./$(DEPDIR)/jvntest.Po \
+	./$(DEPDIR)/mvtest.Po ./$(DEPDIR)/nametest.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -156,10 +163,11 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(detest00_SOURCES) $(detest01_SOURCES) $(jvntest_SOURCES) \
-	$(mvtest_SOURCES)
+SOURCES = $(detest00_SOURCES) $(detest01_SOURCES) $(faulttest_SOURCES) \
+	$(jvntest_SOURCES) $(mvtest_SOURCES) $(nametest_SOURCES)
 DIST_SOURCES = $(detest00_SOURCES) $(detest01_SOURCES) \
-	$(jvntest_SOURCES) $(mvtest_SOURCES)
+	$(faulttest_SOURCES) $(jvntest_SOURCES) $(mvtest_SOURCES) \
+	$(nametest_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -311,7 +319,9 @@ top_srcdir = @top_srcdir@
 mvtest_SOURCES = mvtest.c
 detest00_SOURCES = detest00.c
 detest01_SOURCES = detest01.c
+faulttest_SOURCES = faulttest.c
 jvntest_SOURCES = jvntest.c
+nametest_SOURCES = nametest.c
 CLEANFILES = *.idx *.dat RECOVER
 DISTCLEANFILES = atconfig
 EXTRA_DIST = TESTDATA
@@ -370,6 +380,10 @@ detest01$(EXEEXT): $(detest01_OBJECTS) $(detest01_DEPENDENCIES) $(EXTRA_detest01
 	@rm -f detest01$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(detest01_OBJECTS) $(detest01_LDADD) $(LIBS)
 
+faulttest$(EXEEXT): $(faulttest_OBJECTS) $(faulttest_DEPENDENCIES) $(EXTRA_faulttest_DEPENDENCIES) 
+	@rm -f faulttest$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(faulttest_OBJECTS) $(faulttest_LDADD) $(LIBS)
+
 jvntest$(EXEEXT): $(jvntest_OBJECTS) $(jvntest_DEPENDENCIES) $(EXTRA_jvntest_DEPENDENCIES) 
 	@rm -f jvntest$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(jvntest_OBJECTS) $(jvntest_LDADD) $(LIBS)
@@ -377,6 +391,10 @@ jvntest$(EXEEXT): $(jvntest_OBJECTS) $(jvntest_DEPENDENCIES) $(EXTRA_jvntest_DEP
 mvtest$(EXEEXT): $(mvtest_OBJECTS) $(mvtest_DEPENDENCIES) $(EXTRA_mvtest_DEPENDENCIES) 
 	@rm -f mvtest$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(mvtest_OBJECTS) $(mvtest_LDADD) $(LIBS)
+
+nametest$(EXEEXT): $(nametest_OBJECTS) $(nametest_DEPENDENCIES) $(EXTRA_nametest_DEPENDENCIES) 
+	@rm -f nametest$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(nametest_OBJECTS) $(nametest_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -386,8 +404,10 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/detest00.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/detest01.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/faulttest.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jvntest.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mvtest.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nametest.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)

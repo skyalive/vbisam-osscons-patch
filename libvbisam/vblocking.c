@@ -200,7 +200,7 @@ ivbenter (const int ihandle, const unsigned int imodifying,
 		}
 	}
 	iserrno = 0;
-	if (psvbptr->iisopen && ivbintrans != VBCOMMIT && ivbintrans != VBROLLBACK) {
+	if (psvbptr->iisopen != VB_OPEN && ivbintrans != VBCOMMIT && ivbintrans != VBROLLBACK) {
 		iserrno = ENOTOPEN;
 		return -1;
 	}

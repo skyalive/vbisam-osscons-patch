@@ -396,6 +396,12 @@ struct	DICTNODE {			/* Offset	32Val	64Val */
 			/* Length Total	   0x75	0xcd */
 };
 
+enum vb_open_state {
+	VB_OPEN = 0,
+	VB_CLOSED_FILES_OPEN = 1,
+	VB_CLOSED_FILES_CLOSED = 2
+};
+
 struct	DICTINFO {
 	int	inkeys;		/* Number of keys */
 	int	iactivekey;	/* Which key is the active key */
@@ -404,11 +410,7 @@ struct	DICTINFO {
 	int	imaxrowlength;	/* Maximum data row length */
 	int	idatahandle;	/* file descriptor of the .dat file */
 	int	iindexhandle;	/* file descriptor of the .idx file */
-	int	iisopen;	/* 0: Table open, Files open, Buffers OK */
-				/* 1: Table closed, Files open, Buffers OK */
-				/*	Used to retain locks */
-				/* 2: Table closed, Files closed, Buffers OK */
-				/*	Basically, just caching */
+	int	iisopen;	/* enum vb_open_state */
 	int	iopenmode;	/* The type of open which was used */
 	int	ivarlenlength;	/* Length of varlen component */
 	int	ivarlenslot;	/* The slot number within tvarlennode */
@@ -514,7 +516,7 @@ VB_HIDDEN extern int	ivbtransclose (const int ihandle, const char *pcfilename);
 VB_HIDDEN extern int	ivbtransopen (const int ihandle, const char *pcfilename);
 VB_HIDDEN extern int	ivbtransinsert (const int ihandle, const off_t trownumber,
 				int irowlength, char *pcrow);
-VB_HIDDEN extern int	ivbtransrename (char *pcoldname, char *pcnewname);
+VB_HIDDEN extern int	ivbtransrename (const char *pcoldname, const char *pcnewname);
 VB_HIDDEN extern int	ivbtranssetunique (const int ihandle, const off_t tuniqueid);
 VB_HIDDEN extern int	ivbtransuniqueid (const int ihandle, const off_t tuniqueid);
 VB_HIDDEN extern int	ivbtransupdate (const int ihandle, const off_t trownumber,

@@ -33,11 +33,16 @@ iscluster (const int ihandle, struct keydesc *pskeydesc)
 }
 
 int
-iserase (char *pcfilename)
+iserase (const char *pcfilename)
 {
 	int	ihandle;
 	char	cbuffer[1024];
+	int		written;
 
+	if (strlen (pcfilename) > sizeof(cbuffer) - 5) {
+		iserrno = EFNAME;
+		return -1;
+	}
 	for (ihandle = 0; ihandle <= ivbmaxusedhandle; ihandle++) {
 		if (psvbfile[ihandle] != NULL) {
 			if (!strcmp (psvbfile[ihandle]->cfilename, pcfilename)) {
@@ -47,9 +52,17 @@ iserase (char *pcfilename)
 			}
 		}
 	}
-	sprintf (cbuffer, "%s.idx", pcfilename);
+	written = snprintf (cbuffer, sizeof (cbuffer), "%s.idx", pcfilename);
+	if (written < 0 || (size_t)written >= sizeof (cbuffer)) {
+		iserrno = EFNAME;
+		return -1;
+	}
 	unlink (cbuffer);
-	sprintf (cbuffer, "%s.dat", pcfilename);
+	written = snprintf (cbuffer, sizeof (cbuffer), "%s.dat", pcfilename);
+	if (written < 0 || (size_t)written >= sizeof (cbuffer)) {
+		iserrno = EFNAME;
+		return -1;
+	}
 	unlink (cbuffer);
 	return ivbtranserase (pcfilename);
 }
@@ -64,7 +77,7 @@ isflush (const int ihandle)
 		return -1;
 	}
 	psvbptr = psvbfile[ihandle];
-	if (!psvbptr || psvbptr->iisopen) {
+	if (!psvbptr || psvbptr->iisopen != VB_OPEN) {
 		iserrno = ENOTOPEN;
 		return -1;
 	}
@@ -87,7 +100,7 @@ islock (const int ihandle)
 		return -1;
 	}
 	psvbptr = psvbfile[ihandle];
-	if (!psvbptr || psvbptr->iisopen) {
+	if (!psvbptr || psvbptr->iisopen != VB_OPEN) {
 		iserrno = ENOTOPEN;
 		return -1;
 	}
@@ -104,7 +117,7 @@ isrelcurr (const int ihandle)
 		return -1;
 	}
 	psvbptr = psvbfile[ihandle];
-	if (!psvbptr || psvbptr->iisopen) {
+	if (!psvbptr || psvbptr->iisopen != VB_OPEN) {
 		iserrno = ENOTOPEN;
 		return -1;
 	}
@@ -132,7 +145,7 @@ isrelease (const int ihandle)
 		return -1;
 	}
 	psvbptr = psvbfile[ihandle];
-	if (!psvbptr || psvbptr->iisopen) {
+	if (!psvbptr || psvbptr->iisopen != VB_OPEN) {
 		iserrno = ENOTOPEN;
 		return -1;
 	}
@@ -153,7 +166,7 @@ isrelrec (const int ihandle, const vbisam_off_t trownumber)
 		return -1;
 	}
 	psvbptr = psvbfile[ihandle];
-	if (!psvbptr || psvbptr->iisopen) {
+	if (!psvbptr || psvbptr->iisopen != VB_OPEN) {
 		iserrno = ENOTOPEN;
 		return -1;
 	}
@@ -165,23 +178,53 @@ isrelrec (const int ihandle, const vbisam_off_t trownumber)
 }
 
 int
-isrename (char *pcoldname, char *pcnewname)
+isrename (const char *pcoldname, const char *pcnewname)
 {
 	int	iresult;
 	char	cbuffer[2][1024];
+	int	written;
 
-	sprintf (cbuffer[0], "%s.idx", pcoldname);
-	sprintf (cbuffer[1], "%s.idx", pcnewname);
+	if (strlen (pcoldname) > sizeof(cbuffer[0]) - 5
+	    || strlen (pcnewname) > sizeof(cbuffer[0]) - 5) {
+		iserrno = EFNAME;
+		return -1;
+	}
+	written = snprintf (cbuffer[0], sizeof (cbuffer[0]), "%s.idx", pcoldname);
+	if (written < 0 || (size_t)written >= sizeof (cbuffer[0])) {
+		iserrno = EFNAME;
+		return -1;
+	}
+	written = snprintf (cbuffer[1], sizeof (cbuffer[1]), "%s.idx", pcnewname);
+	if (written < 0 || (size_t)written >= sizeof (cbuffer[1])) {
+		iserrno = EFNAME;
+		return -1;
+	}
 	iresult = rename (cbuffer[0], cbuffer[1]);
 	if (iresult == -1) {
 		goto renameexit;
 	}
-	sprintf (cbuffer[0], "%s.dat", pcoldname);
-	sprintf (cbuffer[1], "%s.dat", pcnewname);
+	written = snprintf (cbuffer[0], sizeof (cbuffer[0]), "%s.dat", pcoldname);
+	if (written < 0 || (size_t)written >= sizeof (cbuffer[0])) {
+		iserrno = EFNAME;
+		return -1;
+	}
+	written = snprintf (cbuffer[1], sizeof (cbuffer[1]), "%s.dat", pcnewname);
+	if (written < 0 || (size_t)written >= sizeof (cbuffer[1])) {
+		iserrno = EFNAME;
+		return -1;
+	}
 	iresult = rename (cbuffer[0], cbuffer[1]);
 	if (iresult == -1) {
-		sprintf (cbuffer[0], "%s.idx", pcoldname);
-		sprintf (cbuffer[1], "%s.idx", pcnewname);
+		written = snprintf (cbuffer[0], sizeof (cbuffer[0]), "%s.idx", pcoldname);
+		if (written < 0 || (size_t)written >= sizeof (cbuffer[0])) {
+			iserrno = EFNAME;
+			return -1;
+		}
+		written = snprintf (cbuffer[1], sizeof (cbuffer[1]), "%s.idx", pcnewname);
+		if (written < 0 || (size_t)written >= sizeof (cbuffer[1])) {
+			iserrno = EFNAME;
+			return -1;
+		}
 		rename (cbuffer[1], cbuffer[0]);
 		goto renameexit;
 	}
@@ -262,7 +305,7 @@ isunlock (const int ihandle)
 		return -1;
 	}
 	psvbptr = psvbfile[ihandle];
-	if (!psvbptr || psvbptr->iisopen) {
+	if (!psvbptr || psvbptr->iisopen != VB_OPEN) {
 		iserrno = ENOTOPEN;
 		return -1;
 	}
@@ -279,7 +322,7 @@ isdi_name (const int ihandle)
 		return NULL;
 	}
 	psvbptr = psvbfile[ihandle];
-	if (!psvbptr || psvbptr->iisopen) {
+	if (!psvbptr || psvbptr->iisopen != VB_OPEN) {
 		iserrno = ENOTOPEN;
 		return NULL;
 	}
@@ -296,7 +339,7 @@ isdi_datlen (const int ihandle)
 		return -1;
 	}
 	psvbptr = psvbfile[ihandle];
-	if (!psvbptr || psvbptr->iisopen) {
+	if (!psvbptr || psvbptr->iisopen != VB_OPEN) {
 		iserrno = ENOTOPEN;
 		return -1;
 	}
@@ -313,7 +356,7 @@ isdi_idxfd (const int ihandle)
 		return -1;
 	}
 	psvbptr = psvbfile[ihandle];
-	if (!psvbptr || psvbptr->iisopen) {
+	if (!psvbptr || psvbptr->iisopen != VB_OPEN) {
 		iserrno = ENOTOPEN;
 		return -1;
 	}
@@ -330,7 +373,7 @@ isdi_datfd (const int ihandle)
 		return -1;
 	}
 	psvbptr = psvbfile[ihandle];
-	if (!psvbptr || psvbptr->iisopen) {
+	if (!psvbptr || psvbptr->iisopen != VB_OPEN) {
 		iserrno = ENOTOPEN;
 		return -1;
 	}
@@ -347,7 +390,7 @@ isdi_curidx (const int ihandle)
 		return -1;
 	}
 	psvbptr = psvbfile[ihandle];
-	if (!psvbptr || psvbptr->iisopen) {
+	if (!psvbptr || psvbptr->iisopen != VB_OPEN) {
 		iserrno = ENOTOPEN;
 		return -1;
 	}
@@ -365,7 +408,7 @@ isdi_kdsc (const int ihandle)
 		return NULL;
 	}
 	psvbptr = psvbfile[ihandle];
-	if (!psvbptr || psvbptr->iisopen) {
+	if (!psvbptr || psvbptr->iisopen != VB_OPEN) {
 		iserrno = ENOTOPEN;
 		return NULL;
 	}

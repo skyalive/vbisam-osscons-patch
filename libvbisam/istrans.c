@@ -171,7 +171,7 @@ idemotelocks (void)
 
 	for (ihandle = 0; ihandle <= ivbmaxusedhandle; ihandle++) {
 		psvbptr = psvbfile[ihandle];
-		if (!psvbptr || psvbptr->iisopen == 2) {
+		if (!psvbptr || psvbptr->iisopen == VB_CLOSED_FILES_CLOSED) {
 			continue;
 		}
 		if (psvbptr->iopenmode & ISEXCLLOCK) {
@@ -262,7 +262,7 @@ ivbrollmeback (off_t toffset, const int iinrecover)
 		ihandle = inl_ldint (pcbuffer);
 		trownumber = inl_ldquad (pcbuffer + INTSIZE);
 		if (!memcmp (psvblogheader->coperation, VBL_FILECLOSE, 2)) {
-			if (ilocalhandle[ihandle] != -1 && psvbfile[ihandle]->iisopen == 0) {
+			if (ilocalhandle[ihandle] != -1 && psvbfile[ihandle]->iisopen == VB_OPEN) {
 				return EBADFILE;
 			}
 			iloop = inl_ldint (pcbuffer + INTSIZE);
@@ -482,7 +482,7 @@ iscommit (void)
 	}
 	for (iloop = 0; iloop <= ivbmaxusedhandle; iloop++) {
 		psvbptr = psvbfile[iloop];
-		if (psvbptr && psvbptr->iisopen == 1) {
+		if (psvbptr && psvbptr->iisopen == VB_CLOSED_FILES_OPEN) {
 			iresult = iserrno;
 			if (!ivbclose2 (iloop)) {
 				iserrno = iresult;
@@ -557,7 +557,7 @@ isrollback (void)
 	/* Don't write out a 'null' transaction! */
 	for (iloop = 0; iloop <= ivbmaxusedhandle; iloop++) {
 		psvbptr = psvbfile[iloop];
-		if (psvbptr && psvbptr->iisopen == 1) {
+		if (psvbptr && psvbptr->iisopen == VB_CLOSED_FILES_OPEN) {
 			iresult = iserrno;
 			if (!ivbclose2 (iloop)) {
 				iserrno = iresult;
@@ -583,7 +583,7 @@ isrollback (void)
 	}
 	for (iloop = 0; iloop <= ivbmaxusedhandle; iloop++) {
 		psvbptr = psvbfile[iloop];
-		if (psvbptr && psvbptr->iisopen == 1) {
+		if (psvbptr && psvbptr->iisopen == VB_CLOSED_FILES_OPEN) {
 			if (ivbclose2 (iloop)) {
 				iresult = iserrno;
 			}
@@ -699,7 +699,13 @@ ivbtransdelete (const int ihandle, off_t trownumber, int irowlength)
 {
 	struct DICTINFO	*psvbptr;
 	char		*pcbuffer;
+	const char	*value;
 
+	value = getenv ("VBISAM_FAULT_TRANSDELETE");
+	if (value && value[0] != '\0' && strcmp (value, "0") != 0) {
+		iserrno = ELOGWRIT;
+		return -1;
+	}
 	psvbptr = psvbfile[ihandle];
 	if (ivblogfilehandle < 0 || psvbptr->iopenmode & ISNOLOG) {
 		return 0;
@@ -911,7 +917,7 @@ ivbtransinsert (const int ihandle, const off_t trownumber, int irowlength, char 
 }
 
 int
-ivbtransrename (char *pcoldname, char *pcnewname)
+ivbtransrename (const char *pcoldname, const char *pcnewname)
 {
 	char	*pcbuffer;
 	int	ilength, ilength1, ilength2;

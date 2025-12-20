@@ -1,8 +1,10 @@
-noinst_PROGRAMS = mvtest detest00 detest01 jvntest
+noinst_PROGRAMS = mvtest detest00 detest01 jvntest nametest faulttest
 mvtest_SOURCES = mvtest.c
 detest00_SOURCES = detest00.c
 detest01_SOURCES = detest01.c
 jvntest_SOURCES = jvntest.c
+nametest_SOURCES = nametest.c
+faulttest_SOURCES = faulttest.c
 
 CLEANFILES = *.idx *.dat RECOVER
 DISTCLEANFILES = atconfig

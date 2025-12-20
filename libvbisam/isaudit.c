@@ -20,7 +20,7 @@
 #include	"isinternal.h"
 
 int
-isaudit (const int ihandle, char *pcfilename, int imode)
+isaudit (const int ihandle, const char *pcfilename, int imode)
 {
 	/* BUG - Write isaudit */
 	if (ihandle < 0 || ihandle > ivbmaxusedhandle) {

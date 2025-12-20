@@ -86,7 +86,7 @@ vcloseall (void)
 
 	for (iloop = 0; iloop <= VB_MAX_FILES; iloop++) {
 		psvbptr = psvbfile[iloop];
-		if (psvbptr && psvbptr->iisopen == 0) {
+		if (psvbptr && psvbptr->iisopen == VB_OPEN) {
 			isclose (iloop);
 		}
 	}

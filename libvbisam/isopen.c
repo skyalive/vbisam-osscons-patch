@@ -46,6 +46,14 @@ tcountrows (const int ihandle)
 
 /* Global functions */
 
+static int
+vb_test_fault_forceexit (void)
+{
+	const char *value = getenv ("VBISAM_FAULT_FORCEEXIT");
+
+	return value && value[0] != '\0' && strcmp (value, "0") != 0;
+}
+
 int
 ivbforceexit (const int ihandle)
 {
@@ -53,6 +61,10 @@ ivbforceexit (const int ihandle)
 	int		iresult = 0;
 	char		cvbnodetmp[VB_NODE_MAX];
 
+	if (vb_test_fault_forceexit ()) {
+		iserrno = EBADFILE;
+		return -1;
+	}
 	psvbptr = psvbfile[ihandle];
 	if (psvbptr->iisdictlocked & 0x02) {
 		memset (cvbnodetmp, 0, VB_NODE_MAX);
@@ -88,7 +100,7 @@ ivbclose2 (const int ihandle)
 	int		iindexhandle;
 
 	psvbptr = psvbfile[ihandle];
-	psvbptr->iisopen = 0;	/* It's a LIE, but so what! */
+	psvbptr->iisopen = VB_OPEN;	/* It's a LIE, but so what! */
 	isrelease (ihandle);
 	iserrno = ivbtransclose (ihandle, psvbptr->cfilename);
 	if (ivbclose (psvbptr->idatahandle)) {
@@ -112,7 +124,7 @@ ivbclose2 (const int ihandle)
 */
 	psvbptr->trownumber = 0;
 	psvbptr->tdupnumber = 0;
-	psvbptr->iisopen = 2;	/* Only buffers remain! */
+	psvbptr->iisopen = VB_CLOSED_FILES_CLOSED;	/* Only buffers remain! */
 	psvbptr->itransyet = 0;
 	for (iloop = 0; iloop < MAXSUBS; iloop++) {
 		psvbptr->pskeycurr[iloop] = NULL;
@@ -142,7 +154,7 @@ ivbclose3 (const int ihandle)
 		free (psvbptr->cfilename);
 	}
 	if (psvbptr->ppcrowbuffer) {
-		free (psvbptr->ppcrowbuffer);
+		vvbfree (psvbptr->ppcrowbuffer);
 	}
 	vvbfree (psvbptr);
 	psvbfile[ihandle] = NULL;
@@ -155,13 +167,13 @@ iscleanup (void)
 
 	for (iloop = 0; iloop <= ivbmaxusedhandle; iloop++)
 		if (psvbfile[iloop]) {
-			if (psvbfile[iloop]->iisopen == 0) {
+			if (psvbfile[iloop]->iisopen == VB_OPEN) {
 				iresult = isclose (iloop);
 				if (iresult) {
 					iresult2 = iserrno;
 				}
 			}
-			if (psvbfile[iloop]->iisopen == 1) {
+			if (psvbfile[iloop]->iisopen == VB_CLOSED_FILES_OPEN) {
 				iresult = ivbclose2 (iloop);
 				if (iresult) {
 					iresult2 = iserrno;
@@ -188,15 +200,17 @@ isclose (const int ihandle)
 		return -1;
 	}
 	psvbptr = psvbfile[ihandle];
-	if (!psvbptr || psvbptr->iisopen) {
+	if (!psvbptr || psvbptr->iisopen != VB_OPEN) {
 		iserrno = ENOTOPEN;
 		return -1;
 	}
 	if (psvbptr->iopenmode & ISEXCLLOCK) {
-		ivbforceexit (ihandle);	/* BUG retval */
+		if (ivbforceexit (ihandle)) {
+			return -1;
+		}
 	}
 	psvbptr->iindexchanged = 0;
-	psvbptr->iisopen = 1;
+	psvbptr->iisopen = VB_CLOSED_FILES_OPEN;
 	if (!(ivbintrans == VBBEGIN || ivbintrans == VBNEEDFLUSH || ivbintrans == VBRECOVER)) {
 		if (ivbclose2 (ihandle)) {
 			return -1;
@@ -229,7 +243,7 @@ isindexinfo (const int ihandle, void *pskeydesc, const int ikeynumber)
 		return -1;
 	}
 	psvbptr = psvbfile[ihandle];
-	if (!psvbptr || psvbptr->iisopen) {
+	if (!psvbptr || psvbptr->iisopen != VB_OPEN) {
 		iserrno = ENOTOPEN;
 		return -1;
 	}
@@ -303,9 +317,9 @@ isopen (const char *pcfilename, int imode)
 	 */
 	for (ihandle = 0; ihandle <= ivbmaxusedhandle; ihandle++) {
 		psvbptr = psvbfile[ihandle];
-		if (psvbptr && psvbptr->iisopen != 0) {
+		if (psvbptr && psvbptr->iisopen != VB_OPEN) {
 			if (!strcmp (psvbptr->cfilename, pcfilename)) {
-				if (psvbptr->iisopen == 2) {
+				if (psvbptr->iisopen == VB_CLOSED_FILES_CLOSED) {
 					sprintf (tmpfname, "%s.idx", pcfilename);
 					psvbptr->iindexhandle =
 					    ivbopen (tmpfname, O_RDWR | O_BINARY, 0);
@@ -322,7 +336,7 @@ isopen (const char *pcfilename, int imode)
 						goto open_err;
 					}
 				}
-				psvbptr->iisopen = 0;
+				psvbptr->iisopen = VB_OPEN;
 				psvbptr->iopenmode = imode;
 				return ihandle;
 			}
@@ -378,7 +392,7 @@ isopen (const char *pcfilename, int imode)
 	if (psvbptr->idatahandle < 0) {
 		goto open_err;
 	}
-	psvbptr->iisopen = 0;
+	psvbptr->iisopen = VB_OPEN;
 
 	psvbptr->inodesize = MAX_NODE_LENGTH;
 	/* Get dictionary node and set node size */
@@ -521,14 +535,14 @@ open_err:
 		if (psvbptr->idatahandle != -1) {
 			ivbclose (psvbptr->idatahandle);
 		}
-		if (psvbptr->idatahandle != -1) {
+		if (psvbptr->iindexhandle != -1) {
 			ivbclose (psvbptr->iindexhandle);
 		}
 		if (psvbptr->cfilename) {
 			free (psvbptr->cfilename);
 		}
 		if (psvbptr->ppcrowbuffer) {
-			free (psvbptr->ppcrowbuffer);
+			vvbfree (psvbptr->ppcrowbuffer);
 		}
 		vvbfree (psvbptr);
 	}
@@ -546,7 +560,7 @@ int issetcollate (const int ihandle, const unsigned char *collating_sequence)
 		return -1;
 	}
 	psvbptr = psvbfile[ihandle];
-	if (!psvbptr || psvbptr->iisopen) {
+	if (!psvbptr || psvbptr->iisopen != VB_OPEN) {
 		iserrno = ENOTOPEN;
 		return -1;
 	}

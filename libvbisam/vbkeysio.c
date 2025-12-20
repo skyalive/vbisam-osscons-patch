@@ -818,7 +818,10 @@ ivbkeydelete (const int ihandle, const int ikeynumber)
 				pskey = pskey->psprev;
 				iforcerewrite = 1;
 			} else {
-				iresult = ivbnodefree (ihandle, pstree->tnodenumber);	/* BUG - didn't check iresult */
+				iresult = ivbnodefree (ihandle, pstree->tnodenumber);
+				if (iresult) {
+					return iresult;	/* BUG Corrupt! */
+				}
 				pstree = pstree->psparent;
 				vvbtreeallfree (ihandle, ikeynumber,
 						pstree->pskeycurr->pschild);

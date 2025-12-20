@@ -193,7 +193,7 @@ struct	audhead
 
 /* Prototypes for file manipulation functions */
 extern int	isaddindex (const int ihandle, struct keydesc *pskeydesc);
-extern int	isaudit (const int ihandle, char *pcfilename, int imode);
+extern int	isaudit (const int ihandle, const char *pcfilename, int imode);
 extern int	isbegin (void);
 extern int	isbuild (const char *pcfilename, const int imaxrowlength,
 			struct keydesc *pskey, int imode);
@@ -206,7 +206,7 @@ extern int	isdelcurr (const int ihandle);
 extern int	isdelete (const int ihandle, char *pcrow);
 extern int	isdelindex (const int ihandle, struct keydesc *pskeydesc);
 extern int	isdelrec (const int ihandle, vbisam_off_t trownumber);
-extern int	iserase (char *pcfilename);
+extern int	iserase (const char *pcfilename);
 extern int	isflush (const int ihandle);
 extern int	isfullclose (const int ihandle);
 extern int	isindexinfo (const int ihandle, void *pskeydesc, const int ikeynumber);
@@ -219,7 +219,7 @@ extern int	isrecover (void);
 extern int	isrelcurr (const int ihandle);
 extern int	isrelease (const int ihandle);
 extern int	isrelrec (const int ihandle, const vbisam_off_t trownumber);
-extern int	isrename (char *pcoldname, char *pcnewname);
+extern int	isrename (const char *pcoldname, const char *pcnewname);
 extern int	isrewcurr (const int ihandle, char *pcrow);
 extern int	isrewrec (const int ihandle, const vbisam_off_t trownumber,
 			char *pcrow);

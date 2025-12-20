@@ -386,7 +386,8 @@ isbuild (const char *pcfilename, const int imaxrowlength, struct keydesc *pskey,
 	}
 	memcpy (psvbptr->pskeydesc[0], pskey, sizeof (struct keydesc));
 	if (ivbcheckkey (ihandle, pskey, 0, iminrowlength, 1)) {
-		return -1;
+		errno = iserrno;
+		goto build_err;
 	}
 	sprintf (tmpfname, "%s.dat", pcfilename);
 	if (!stat (tmpfname, &sstat)) {
@@ -458,7 +459,7 @@ isbuild (const char *pcfilename, const int imaxrowlength, struct keydesc *pskey,
 			free (psvbptr->cfilename);
 		}
 		if (psvbptr->ppcrowbuffer) {
-			free (psvbptr->ppcrowbuffer);
+			vvbfree (psvbptr->ppcrowbuffer);
 		}
 		if (psvbptr->pskeydesc[0]) {
 			free (psvbptr->pskeydesc[0]);
@@ -505,7 +506,7 @@ isbuild (const char *pcfilename, const int imaxrowlength, struct keydesc *pskey,
 			free (psvbptr->cfilename);
 		}
 		if (psvbptr->ppcrowbuffer) {
-			free (psvbptr->ppcrowbuffer);
+			vvbfree (psvbptr->ppcrowbuffer);
 		}
 		if (psvbptr->pskeydesc[0]) {
 			free (psvbptr->pskeydesc[0]);
@@ -531,7 +532,7 @@ isbuild (const char *pcfilename, const int imaxrowlength, struct keydesc *pskey,
 				free (psvbptr->cfilename);
 			}
 			if (psvbptr->ppcrowbuffer) {
-				free (psvbptr->ppcrowbuffer);
+				vvbfree (psvbptr->ppcrowbuffer);
 			}
 			if (psvbptr->pskeydesc[0]) {
 				free (psvbptr->pskeydesc[0]);
@@ -542,7 +543,7 @@ isbuild (const char *pcfilename, const int imaxrowlength, struct keydesc *pskey,
 		}
 	}
 
-	psvbptr->iisopen = 0;	/* Mark it as FULLY open */
+	psvbptr->iisopen = VB_OPEN;	/* Mark it as FULLY open */
 	if (imode & ISEXCLLOCK) {
 		ivbfileopenlock (ihandle, 2);
 	} else {
@@ -561,10 +562,10 @@ build_err:
 			free (psvbfile[ihandle]->cfilename);
 		}
 		if (psvbfile[ihandle]->ppcrowbuffer) {
-			free (psvbfile[ihandle]->ppcrowbuffer);
+			vvbfree (psvbfile[ihandle]->ppcrowbuffer);
 		}
 		if (psvbfile[ihandle]->pskeydesc[0]) {
-			free (psvbfile[ihandle]->pskeydesc[0]);
+			vvbfree (psvbfile[ihandle]->pskeydesc[0]);
 		}
 		vvbfree (psvbfile[ihandle]);
 	}

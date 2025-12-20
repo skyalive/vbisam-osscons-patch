@@ -108,7 +108,9 @@ iprocessdelete (const int ihandle, off_t trownumber)
 	if (trownumber == psvbptr->trownumber) {
 		psvbptr->trownumber = 0;
 	}
-	ivbtransdelete (ihandle, trownumber, isreclen);	/* BUG - retval */
+	if (ivbtransdelete (ihandle, trownumber, isreclen)) {
+		return -1;
+	}
 	return 0;
 }
 

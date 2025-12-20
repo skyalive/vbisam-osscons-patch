@@ -61,7 +61,7 @@ isdelindex (int, struct keydesc *);
 
 isdelrec (int, off_t);
 
-iserase (char *);
+iserase (const char *);
 
 isflush (int);
 
@@ -81,7 +81,7 @@ isrecover (void);
 
 isrelease (int);
 
-isrename (char *, char *);
+isrename (const char *, const char *);
 
 isrewcurr (int, char *);
 
